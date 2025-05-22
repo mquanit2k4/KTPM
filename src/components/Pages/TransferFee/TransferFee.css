@@ -1,0 +1,73 @@
+select:focus {
+  border-color: #ff7a00 !important;
+  box-shadow: 0 0 0 2px rgb(240, 193, 99) !important;
+  background-color: #fff !important;
+  color: #222 !important;
+}
+
+.btn-submit-fee {
+  background-color: #ff7a00 !important;
+  color: #fff !important;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+  border: none;
+}
+
+.btn-submit-fee:focus {
+  background-color: #faad14 !important;
+  color: #fff !important;
+}
+
+/* Custom styles for dropdown */
+.ant-dropdown-menu {
+  padding: 4px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ant-dropdown-menu-item {
+  padding: 8px 16px;
+  transition: all 0.3s;
+}
+
+/* Override Ant Design's default hover style */
+.ant-dropdown-menu-item:hover,
+.ant-dropdown-menu-item-active {
+  background-color: #ffa500 !important;
+  color: white !important;
+}
+
+/* Override Ant Design's selected style */
+.ant-dropdown-menu-item-selected,
+.ant-dropdown-menu-item-selected:hover {
+  background-color: #ffa500 !important;
+  color: white !important;
+}
+
+/* Style for the trigger button */
+.dropdown-trigger {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid #dee2e6;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  background-color: white;
+}
+
+.dropdown-trigger:hover {
+  border-color: #ffa500;
+}
+
+/* Override Ant Design's default styles */
+.ant-dropdown-menu-item:active,
+.ant-dropdown-menu-submenu-title:active {
+  background-color: #ffa500 !important;
+}
+
+.ant-dropdown-menu-item:hover,
+.ant-dropdown-menu-submenu-title:hover {
+  background-color: #ffa500 !important;
+}

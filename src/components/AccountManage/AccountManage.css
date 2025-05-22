@@ -1,0 +1,29 @@
+.account-manage-header {
+  padding: 32px 0 0 24px;
+  font-size: calc(1.375rem + 1.5vw);
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+h2 {
+  font-size: calc(1.325rem + 0.9vw);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.btn-orange {
+  background-color: #ff7a00 !important;
+  border-color: #ff7a00 !important;
+  color: #fff !important;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.btn-orange:hover,
+.btn-orange:focus,
+.btn-orange:active {
+  background-color: #faad14 !important;
+  border-color: #faad14 !important;
+  color: #fff !important;
+}

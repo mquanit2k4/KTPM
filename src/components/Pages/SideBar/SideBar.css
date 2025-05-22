@@ -1,0 +1,55 @@
+.home-menu-item {
+  background-color: #faad14 !important;
+}
+
+.home-menu-item:hover {
+  background-color: #ffc53d !important;
+}
+
+.home-menu-item .ant-menu-item-icon {
+  color: white !important;
+}
+
+.home-menu-item a {
+  color: white !important;
+}
+
+.home-menu-item.ant-menu-item-selected {
+  background-color: #faad14 !important;
+}
+
+.home-menu-item.ant-menu-item-selected:hover {
+  background-color: #ffc53d !important;
+}
+
+.home-menu-item.ant-menu-item-selected .ant-menu-item-icon {
+  color: white !important;
+}
+
+.home-menu-item.ant-menu-item-selected a {
+  color: white !important;
+}
+
+.ant-menu-dark .ant-menu-item:hover {
+  background-color: #faad14 !important;
+}
+
+.ant-menu-dark .ant-menu-item:hover .ant-menu-item-icon {
+  color: white !important;
+}
+
+.ant-menu-dark .ant-menu-item:hover a {
+  color: white !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+  background-color: #faad14 !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected .ant-menu-item-icon {
+  color: white !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected a {
+  color: white !important;
+}

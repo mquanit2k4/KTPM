@@ -1,0 +1,39 @@
+{
+  "files.associations": {
+<<<<<<< HEAD
+=======
+    "*.css": "tailwindcss",
+>>>>>>> af4a13c8b1636bad46bcfbc90f8bf084b6bb0a87
+    ".eslintrc": "jsonc",
+    ".prettierrc": "jsonc",
+    ".eslintignore": "ignore"
+  },
+<<<<<<< HEAD
+  
+=======
+
+>>>>>>> af4a13c8b1636bad46bcfbc90f8bf084b6bb0a87
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "html",
+    "typescriptreact"
+  ],
+
+  "javascript.validate.enable": false,
+  "javascript.format.enable": false,
+  "typescript.format.enable": false,
+
+  "search.exclude": {
+    ".git": true,
+    ".eslintcache": true,
+    ".erb/dll": true,
+    "release/{build,app/dist}": true,
+    "node_modules": true,
+    "npm-debug.log.*": true,
+    "test/**/__snapshots__": true,
+    "package-lock.json": true,
+    "*.{css,sass,scss}.d.ts": true
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}

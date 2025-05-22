@@ -1,0 +1,199 @@
+select:focus {
+  border-color: #ff7a00 !important;
+  box-shadow: 0 0 0 2px rgb(240, 193, 99) !important;
+  background-color: #fff !important;
+  color: #222 !important;
+}
+
+.btn-submit-fee {
+  background-color: #ff7a00 !important;
+  color: #fff !important;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+  border: none;
+}
+
+.btn-submit-fee:hover,
+.btn-submit-fee:focus,
+.btn-submit-fee:focus-visible {
+  background-color: #faad14 !important;
+  border-color: #faad14 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 2px rgb(240, 193, 99) !important;
+}
+
+.btn-submit-fee:focus {
+  background-color: #faad14 !important;
+  color: #fff !important;
+}
+
+/* Override Bootstrap button styles */
+.btn-primary {
+  background-color: #ff7a00 !important;
+  border-color: #ff7a00 !important;
+  color: #fff !important;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #faad14 !important;
+  border-color: #faad14 !important;
+  color: #fff !important;
+}
+
+.btn-primary:focus {
+  background-color: #faad14 !important;
+  border-color: #faad14 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 2px rgb(240, 193, 99) !important;
+}
+
+button.btn.btn-primary.btn-submit-fee:hover {
+  background-color: #faad14 !important;
+  border-color: #faad14 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 2px rgb(240, 193, 99) !important;
+}
+
+/* Trong file CSS của bạn, ví dụ: App.css */
+
+
+:root, [data-bs-theme=light] {
+  --bs-primary-bg-subtle: #ffa5008f !important;
+  --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem #ff7a0061 !important;
+  --bs-accordion-active-bg: #ffa5008f !important;
+}
+
+
+/* Hoặc nếu bạn muốn áp dụng cho một phần cụ thể, bạn có thể đặt trong một selector */
+/* Ví dụ: chỉ cho Accordion trong một container cụ thể */
+.my-custom-accordion-container {
+  --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem #ff7a0061 !important;
+  --bs-accordion-active-bg: #ffa5008f !important;
+}
+
+.accordion-button:focus {
+  box-shadow: 0 0 0 0.25rem #ff7a0061 !important;
+  border: none;
+}
+
+:where(.css-dev-only-do-not-override-ccdg5a).ant-input-outlined:focus,
+:where(.css-dev-only-do-not-override-ccdg5a).ant-input-outlined:focus-within {
+    border-color: #ffa500;
+    box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.2);
+    outline: 0;
+    background-color: #ffffff;
+}
+
+:where(.css-dev-only-do-not-override-ccdg5a).ant-input-outlined:hover {
+    border-color: #ffa500;
+    background-color: #ffffff;
+}
+
+
+:where(.css-dev-only-do-not-override-ccdg5a).ant-input-outlined:focus-visible {
+    border-color: #ffa500;
+    box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.2);
+}
+
+:where(.css-dev-only-do-not-override-ccdg5a).ant-input-search >.ant-input-group >.ant-input-group-addon:last-child .ant-input-search-button {
+    margin-inline-end: -1px;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+    box-shadow: none;
+}
+
+:where(.css-dev-only-do-not-override-ccdg5a).ant-input-search >.ant-input-group >.ant-input-group-addon:last-child .ant-input-search-button:hover {
+    color: #ff7a00 !important;
+    border-color: #ff7a00 !important;
+    background: #fff !important;
+}
+
+:where(.css-dev-only-do-not-override-ccdg5a).ant-input-search >.ant-input-group >.ant-input-group-addon:last-child .ant-input-search-button:focus {
+    color: #ff7a00 !important;
+    border-color: #ff7a00 !important;
+    background: #fff !important;
+    box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2) !important;
+}
+
+:where(.css-dev-only-do-not-override-ccdg5a).ant-input-search >.ant-input-group >.ant-input-group-addon:last-child .ant-input-search-button:active {
+    color: #ff7a00 !important;
+    border-color: #ff7a00 !important;
+    background: #fff !important;
+}
+
+.form-control:focus {
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+    border-color: #ff7a00;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(255, 122, 0, 0.25);
+}
+
+.form-control:hover {
+    border-color: #ff7a00;
+}
+
+.form-control:focus-visible {
+    border-color: #ff7a00;
+    box-shadow: 0 0 0 0.25rem rgba(255, 122, 0, 0.25);
+}
+
+.btn-secondary {
+    background-color: #bfbfbf !important;
+    border-color: #bfbfbf !important;
+    color: #fff !important;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active {
+    background-color: #a6a6a6 !important;
+    border-color: #a6a6a6 !important;
+    color: #fff !important;
+}
+
+.btn-outline-primary {
+    color: #fff !important;
+    border-color: #ff7a00 !important;
+    background-color: #ff7a00 !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    color: #fff !important;
+    background-color: #faad14 !important;
+    border-color: #faad14 !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 122, 0, 0.25) !important;
+}
+
+.btn-outline-primary:focus-visible {
+    outline: 2px solid #ff7a00 !important;
+    outline-offset: 2px !important;
+}
+
+.btn-outline-danger {
+    color: #fff !important;
+    border-color: #ff4d4f !important;
+    background-color: #ff4d4f !important;
+}
+.btn-outline-danger:hover,
+.btn-outline-danger:focus,
+.btn-outline-danger:active {
+    color: #fff !important;
+    background-color: #d9363e !important;
+    border-color: #d9363e !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 77, 79, 0.25) !important;
+}
+.btn-outline-danger:focus-visible {
+    outline: 2px solid #ff4d4f !important;
+    outline-offset: 2px !important;
+}

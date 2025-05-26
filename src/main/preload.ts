@@ -183,6 +183,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     fee_name: string,
     transferer: string,
     fee_type: string,
+    payment_date?: string,
   ) => {
     return ipcRenderer.invoke(
       'add-transfer-fee',
@@ -191,6 +192,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
       fee_name,
       transferer,
       fee_type,
+      payment_date,
     );
   },
 

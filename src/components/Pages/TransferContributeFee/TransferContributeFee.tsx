@@ -1,87 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { Flex, Button, Layout, Menu, Dropdown } from 'antd';
-import {  FaLeaf, FaSearch, FaHome, FaMoneyBillWave, FaUserAlt  } from "react-icons/fa";
-import { Form } from 'react-bootstrap';
-import {
-  UserOutlined,
-  HomeOutlined,
-  BarChartOutlined,
-  FormOutlined,
-  NotificationOutlined,
-  DollarCircleOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from '@ant-design/icons';
-// import './FeePage.css';
+import { Layout, Dropdown } from 'antd';
 import AnimatedFrame from '../../../../utils/animation_page';
-import { Link } from 'react-router-dom';
-import { BaseFee, TransferFee } from '../../../interface/interface.js';
-import SideBar from '../SideBar/SideBar';
+import { TransferFee } from '../../../interface/interface.js';
 import ConfirmModal from '../../ConfirmModal/ConfirmModel';
 import './TransferContributeFee.css';
-const { Header, Sider, Content } = Layout;
-// const FeeMap: Record<"Tiền điện" | "Tiền nước" | "Tiền ủng hộ bão" | "Tiền ủng hộ lũ" | "Tiền wifi", string> = {
-//     "Tiền điện": "Bắt buộc",
-//     "Tiền wifi": "Bắt buộc",
-//     "Tiền nước": "Bắt buộc",
-//     "Tiền ủng hộ bão": "Tự nguyện",
-//     "Tiền ủng hộ lũ": "Tự nguyện",
-//   };
-
+const { Header, Content } = Layout;
 
 type RoomFeeMap = {
   [key: string]: TransferFee[];
 };
 
-// Add this CSS class at the top of the file after imports
-const customDropdownStyle = {
-  '.ant-dropdown-menu-item:hover': {
-    backgroundColor: '#ffa500 !important',
-    color: 'white !important'
-  }
-};
-
 function TransferContributeFeePage() {
-  const [collapsed, setCollapsed] = useState(false);
-  const [roomNumber, setRoomNumber] = useState("");
   const [requiredFee, setRequiredFee] = useState<TransferFee[]>([]);
-  const [searchRoom, setSearchRoom] = useState("");
   const [roomFeeMap, setRoomFeeMap] = useState<RoomFeeMap>({});
-  const [allRows, setAllRows] = useState<BaseFee[]>([]);
   const [FeeMap, setFeeMap] = useState<string[]>([]);
 
   // search the fee that filter by room number
   const [searchValues, setSearchValues] = useState({
-    searchRoomFee: "",
-    result: "",
+    searchRoomFee: '',
+    result: '',
   });
 
   const fetchFee = async () => {
-    const requiredFee: BaseFee[] = await window.electronAPI.fetchMyFee();
-
-    setAllRows(requiredFee);
+    await window.electronAPI.fetchMyFee();
   };
 
   fetchFee();
 
   // fetch data from database
   const fetchRequiredFee = async () => {
-      const requiredFee: TransferFee[] = await window.electronAPI.fetchTransferFee();
-      const mapFee: RoomFeeMap = {};
-
-      for (const fee of requiredFee) {
-        const roomNumber = fee["room_number"].toString();
-
-        if (!mapFee[roomNumber]) {
-            mapFee[roomNumber] = [];
-          }
-
-          mapFee[roomNumber].push(fee);
+    const transferFeeList: TransferFee[] = await window.electronAPI.fetchTransferFee();
+    const mapFee: RoomFeeMap = {};
+    transferFeeList.forEach((fee) => {
+      const roomNumber = fee.room_number.toString();
+      if (!mapFee[roomNumber]) {
+        mapFee[roomNumber] = [];
       }
-
-      setRequiredFee(requiredFee);
-      setRoomFeeMap(mapFee);
-
+      mapFee[roomNumber].push(fee);
+    });
+    setRequiredFee(transferFeeList);
+    setRoomFeeMap(mapFee);
   };
 
   useEffect(() => {
@@ -136,7 +94,7 @@ function TransferContributeFeePage() {
 //   }, [searchValues.searchRoomFee]);
 
   // for deleting
-  const [searchDeletedRoom, setSearchDeletedRoom] = useState("");
+  const [searchDeletedRoom, setSearchDeletedRoom] = useState('');
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isErrorDeleteModalOpen, setErrorDeleteModalOpen] = useState(false);
   const [isConfirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
@@ -192,39 +150,59 @@ function TransferContributeFeePage() {
   const [errorAddMessage, setErrorAddMessage] = useState('');
   const [confirmationAddMessage, setConfirmationAddMessage] = useState('');
 
-  const [submitRoomNumber, setSubmitRoomNumber] = useState("");
-  const [submitTransferrer, setSubmitTransferrer] = useState("");
-  const [submitFeeName, setSubmitFeeName] = useState("");
-  const [submitMoney, setSubmitMoney] = useState("");
+  const [submitRoomNumber, setSubmitRoomNumber] = useState('');
+  const [submitTransferrer, setSubmitTransferrer] = useState('');
+  const [submitFeeName, setSubmitFeeName] = useState('');
+  const [submitMoney, setSubmitMoney] = useState('');
+  const [submitDate, setSubmitDate] = useState('');
+
+  // Thêm state lưu danh sách số phòng cư dân
+  const [residentRooms, setResidentRooms] = useState<string[]>([]);
+
+  // Khi mount component, lấy danh sách số phòng cư dân
+  useEffect(() => {
+    const fetchResidentRooms = async () => {
+      const residents = await window.electronAPI.fetchResidentsList();
+      setResidentRooms(residents.map((r: any) => String(r.room_number).trim()));
+    };
+    fetchResidentRooms();
+  }, []);
 
   const handleSubmitAdding = async (e: any) => {
     e.preventDefault();
 
-    var check = 0;
-
-    for (const row of allRows) {
-      if (submitRoomNumber == row["room_number"].toString()) {
-        check = 1;
-        break;
-      }
-    }
-
-    if (!check) {
-      setErrorAddMessage("Nhập sai số phòng.");
+    // Nếu chưa load xong danh sách phòng
+    if (residentRooms.length === 0) {
+      setErrorAddMessage('Đang tải dữ liệu phòng, vui lòng thử lại.');
       setErrorAddModalOpen(true);
-    } else {
-      setConfirmationAddMessage(`Bạn có chắc chắn nộp tiền cho phòng ${submitRoomNumber}?`)
-      setConfirmAddModalOpen(true);
+      return;
     }
+
+    const inputRoom = String(submitRoomNumber).trim();
+    const validRooms = residentRooms.map((r) => r.trim());
+    if (!validRooms.includes(inputRoom)) {
+      setErrorAddMessage('Nhập sai số phòng.');
+      setErrorAddModalOpen(true);
+      return;
+    }
+
+    setConfirmationAddMessage(`Bạn có chắc chắn nộp tiền cho phòng ${submitRoomNumber}?`);
+    setConfirmAddModalOpen(true);
   };
 
   const handleConfirmAdding = async () => {
     setConfirmAddModalOpen(false); // Close confirmation modal
 
     try {
-      const success = await window.electronAPI.addTransferFee(Number(submitRoomNumber), Number(submitMoney),
-                                                              submitFeeName, submitTransferrer,
-                                                              "Tự nguyện");
+      const paymentDate = submitDate || new Date().toISOString().slice(0, 10);
+      const success = await window.electronAPI.addTransferFee(
+        Number(submitRoomNumber),
+        Number(submitMoney),
+        submitFeeName,
+        submitTransferrer,
+        "Tự nguyện",
+        paymentDate
+      );
 
       if (success) {
         setSuccessAddModalOpen(true);
@@ -235,6 +213,7 @@ function TransferContributeFeePage() {
           fee_name: submitFeeName,
           transferer: submitTransferrer,
           fee_type: "Tự nguyện",
+          payment_date: paymentDate
         });
 
       } else {
@@ -249,10 +228,10 @@ function TransferContributeFeePage() {
   };
 
   //for editing
-  const [searchEditedRoom, setSearchEditedRoom] = useState("");
-  const [editedMoney, setEditedMoney] = useState("");
-  const [editedEmail, setEditedEmail] = useState("");
-  const [editedTransferrer, setEditedTransferrer] = useState("");
+  const [searchEditedRoom, setSearchEditedRoom] = useState('');
+  const [editedMoney, setEditedMoney] = useState('');
+  const [editedEmail, setEditedEmail] = useState('');
+  const [editedTransferrer, setEditedTransferrer] = useState('');
 
   const [isErrorEditModalOpen, setErrorEditModalOpen] = useState(false);
   const [isConfirmEditModalOpen, setConfirmEditModalOpen] = useState(false);
@@ -388,6 +367,22 @@ function TransferContributeFeePage() {
                     <div className="mb-4">
                       <label
                         className="block text-sm font-medium mb-2"
+                        htmlFor="submitDate"
+                      >
+                        Thời gian nộp tiền
+                      </label>
+                      <input
+                        type="date"
+                        id="submitDate"
+                        value={submitDate}
+                        onChange={(e) => setSubmitDate(e.target.value)}
+                        className="w-full p-2 border rounded-md"
+                        required
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label
+                        className="block text-sm font-medium mb-2"
                         htmlFor="transferrer"
                       >
                         Người nộp tiền
@@ -439,7 +434,7 @@ function TransferContributeFeePage() {
                       title="Thành công"
                       bodyText="Đã nộp tiền thành công."
                       confirmText=""
-                      cancelText="Huỷ"
+                      cancelText="Đóng"
                     />
                   </form>
                 </div>
@@ -468,7 +463,7 @@ function TransferContributeFeePage() {
                         <th>Số tiền đã nộp</th>
                         <th>Tên khoản thu</th>
                         <th>Người nộp</th>
-                        {/* <th>Loại khoản thu</th> */}
+                        <th>Thời gian nộp</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -479,7 +474,13 @@ function TransferContributeFeePage() {
                                 <td>{row.money}</td>
                                 <td>{row.fee_name}</td>
                                 <td>{row.transferer}</td>
-                                {/* <td>{FeeMap[row.fee_name as keyof typeof FeeMap]}</td> */}
+                                <td>
+                                  {row.payment_date
+                                    ? typeof row.payment_date === 'string'
+                                      ? row.payment_date
+                                      : new Date(row.payment_date).toLocaleDateString('vi-VN')
+                                    : ''}
+                                </td>
                             </tr>
                             ))
                         ) : (

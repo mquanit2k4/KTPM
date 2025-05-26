@@ -105,13 +105,16 @@ ipcMain.handle(
     fee_name: string,
     transferer: string,
     fee_type: string,
+    payment_date?: string
   ) => {
-    const query = 'insert into transfer_fee values (?, ?, ?, ?, ?);';
-    const values = [room_number, money, fee_name, transferer, fee_type];
+    const paymentDate = payment_date || new Date().toISOString().slice(0, 10);
+
+    const query = 'insert into transfer_fee values (?, ?, ?, ?, ?, ?);';
+    const values = [room_number, money, fee_name, transferer, fee_type, paymentDate];
 
     try {
       db.query(query, values)
-        .then((value: [QueryResult, FieldPacket[]]) => {
+        .then(() => {
           event.sender.send('add-response', {
             success: true,
             message: 'add successful',
@@ -130,6 +133,7 @@ ipcMain.handle(
     }
   },
 );
+
 ipcMain.handle('fetch-required-fee', getRequiredFeeData);
 ipcMain.handle('add-required-fee', addRequiredFee);
 ipcMain.handle('edit-required-fee', editRequiredFee);

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import Papa from 'papaparse';
-import { Flex, Button, Layout, Menu } from 'antd';
-import {  FaLeaf, FaSearch, FaHome, FaMoneyBillWave, FaUserAlt  } from "react-icons/fa";
-import { Form } from 'react-bootstrap';
+import { Layout } from 'antd';
 import {
   UserOutlined,
   HomeOutlined,
@@ -13,6 +11,7 @@ import {
   DollarCircleOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  FilterOutlined,
 } from '@ant-design/icons';
 // import './FeePage.css';
 import AnimatedFrame from '../../../../utils/animation_page';
@@ -51,6 +50,10 @@ function HistoryPage() {
     searchRoomFee: "",
     result: "",
   });
+
+  const [filterFeeType, setFilterFeeType] = useState('Tất cả');
+  const [filterDateFrom, setFilterDateFrom] = useState('');
+  const [filterDateTo, setFilterDateTo] = useState('');
 
   const fetchFee = async () => {
     const requiredFee: BaseFee[] = await window.electronAPI.fetchMyFee();
@@ -197,6 +200,7 @@ function HistoryPage() {
   const [submitTransferrer, setSubmitTransferrer] = useState("");
   const [submitFeeName, setSubmitFeeName] = useState("");
   const [submitMoney, setSubmitMoney] = useState("");
+  const [submitDate, setSubmitDate] = useState("");
 
   const handleSubmitAdding = async (e: any) => {
     e.preventDefault();
@@ -223,9 +227,15 @@ function HistoryPage() {
     setConfirmAddModalOpen(false); // Close confirmation modal
 
     try {
-      const success = await window.electronAPI.addTransferFee(Number(submitRoomNumber), Number(submitMoney),
-                                                              submitFeeName, submitTransferrer,
-                                                              "Tự nguyện");
+      const paymentDate = submitDate || new Date().toISOString().slice(0, 10);
+      const success = await window.electronAPI.addTransferFee(
+        Number(submitRoomNumber),
+        Number(submitMoney),
+        submitFeeName,
+        submitTransferrer,
+        "Tự nguyện",
+        paymentDate
+      );
 
       if (success) {
         setSuccessAddModalOpen(true);
@@ -236,6 +246,7 @@ function HistoryPage() {
           fee_name: submitFeeName,
           transferer: submitTransferrer,
           fee_type: "Tự nguyện",
+          payment_date: paymentDate,
         });
 
       } else {
@@ -326,6 +337,11 @@ function HistoryPage() {
       'Tên khoản thu': row.fee_name,
       'Người nộp': row.transferer,
       'Loại khoản thu': row.fee_type,
+      'Thời gian nộp': (row as any).payment_date
+        ? typeof (row as any).payment_date === 'string'
+          ? (row as any).payment_date
+          : new Date((row as any).payment_date).toLocaleDateString('vi-VN')
+        : '',
     }));
 
     // Chuyển đổi dữ liệu sang CSV
@@ -339,6 +355,24 @@ function HistoryPage() {
     saveAs(blob, 'history.csv');
   };
 
+  // Hàm lọc dữ liệu theo loại khoản thu và khoảng thời gian
+  const filteredRows = (searchValues.searchRoomFee !== ''
+    ? roomFeeMap[searchValues.searchRoomFee] || []
+    : requiredFee
+  ).filter(row => {
+    // Lọc theo loại khoản thu
+    const matchType = filterFeeType === 'Tất cả' || row.fee_type === filterFeeType;
+    // Lọc theo khoảng thời gian
+    let matchDate = true;
+    if (filterDateFrom) {
+      matchDate = matchDate && row.payment_date && row.payment_date >= filterDateFrom;
+    }
+    if (filterDateTo) {
+      matchDate = matchDate && row.payment_date && row.payment_date <= filterDateTo;
+    }
+    return matchType && matchDate;
+  });
+
   return (
     <AnimatedFrame>
       <Layout>
@@ -349,19 +383,54 @@ function HistoryPage() {
               <div className="container mx-auto grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
                 <div className="bg-white p-6 rounded-lg shadow-md">
                   <h2 className="text-2xl font-semibold mb-4">Lịch sử nộp tiền</h2>
-                  <label className="block text-sm font-medium mb-2" htmlFor="roomNumber">
-                    Số phòng
-                  </label>
-                  <div className="mb-4">
-                    <input
-                      type="text"
-                      value={searchValues.searchRoomFee}
-                      onChange={handleSearching}
-                      className="w-full p-2 border rounded-md"
-                      placeholder="Nhập số phòng"
-                    />
+                  <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 16 }}>
+                    <div style={{ flex: 1 }}>
+                      <label className="block text-sm font-medium mb-2" htmlFor="roomNumber">
+                        Số phòng
+                      </label>
+                      <input
+                        type="text"
+                        value={searchValues.searchRoomFee}
+                        onChange={handleSearching}
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Nhập số phòng"
+                      />
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <label className="block text-sm font-medium mb-2" htmlFor="filterFeeType">
+                        Loại khoản thu
+                        <FilterOutlined style={{ marginLeft: 6 }} />
+                      </label>
+                      <select
+                        id="filterFeeType"
+                        value={filterFeeType}
+                        onChange={e => setFilterFeeType(e.target.value)}
+                        className="p-2 border rounded-md"
+                      >
+                        <option value="Tất cả">Tất cả</option>
+                        <option value="Tự nguyện">Tự nguyện</option>
+                        <option value="Bắt buộc">Bắt buộc</option>
+                      </select>
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <label className="block text-sm font-medium mb-2">Từ ngày</label>
+                      <input
+                        type="date"
+                        value={filterDateFrom}
+                        onChange={e => setFilterDateFrom(e.target.value)}
+                        className="p-2 border rounded-md"
+                      />
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <label className="block text-sm font-medium mb-2">Đến ngày</label>
+                      <input
+                        type="date"
+                        value={filterDateTo}
+                        onChange={e => setFilterDateTo(e.target.value)}
+                        className="p-2 border rounded-md"
+                      />
+                    </div>
                   </div>
-
 
                   <table className="min-w-full table-auto border-collapse">
                     <thead>
@@ -370,29 +439,33 @@ function HistoryPage() {
                         <th>Số tiền đã nộp</th>
                         <th>Tên khoản thu</th>
                         <th>Người nộp</th>
-                        <th>Loại khoản thu</th>
+                        <th>Loại khoản thu <FilterOutlined style={{ fontSize: 14, marginLeft: 4 }} /></th>
+                        <th>Thời gian nộp</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {searchValues.searchRoomFee !== ""
-                        ? roomFeeMap[searchValues.searchRoomFee]?.map((row, index) => (
-                            <tr key={index}>
-                              <td>{row.room_number}</td>
-                              <td>{row.money}</td>
-                              <td>{row.fee_name}</td>
-                              <td>{row.transferer}</td>
-                              <td>{row.fee_type}</td>
-                            </tr>
-                          ))
-                        : requiredFee.map((row, index) => (
-                            <tr key={index}>
-                              <td>{row.room_number}</td>
-                              <td>{row.money}</td>
-                              <td>{row.fee_name}</td>
-                              <td>{row.transferer}</td>
-                              <td>{row.fee_type}</td>
-                            </tr>
-                          ))}
+                      {filteredRows.length > 0 ? (
+                        filteredRows.map((row, index) => (
+                          <tr key={index}>
+                            <td>{row.room_number}</td>
+                            <td>{row.money}</td>
+                            <td>{row.fee_name}</td>
+                            <td>{row.transferer}</td>
+                            <td>{row.fee_type}</td>
+                            <td>
+                              {row.payment_date
+                                ? typeof row.payment_date === 'string'
+                                  ? row.payment_date
+                                  : new Date(row.payment_date).toLocaleDateString('vi-VN')
+                                : ''}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={6} style={{ textAlign: 'center' }}>Không có dữ liệu phù hợp</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                   {/* Dòng phân cách */}

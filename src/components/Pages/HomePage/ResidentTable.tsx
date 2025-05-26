@@ -10,6 +10,7 @@ function ResidentTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [residents, setResidents] = useState<Resident[]>([]);
   const [searchRoom, setSearchRoom] = useState('');
+  const [searchName, setSearchName] = useState('');
   const [editingResidentId, setEditingResidentId] = useState<Number>();
   const [editedResident, setEditedResident] = useState<Resident>({
     id: 0,
@@ -30,6 +31,13 @@ function ResidentTable() {
     occupation: '',
     phone_number: '',
     email: '',
+  });
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: 'asc' | 'desc';
+  }>({
+    key: '',
+    direction: 'asc',
   });
 
   const addResident = (updatedResidents: any) => {
@@ -89,7 +97,7 @@ function ResidentTable() {
     try {
       await window.electronAPI.editResident({
         ...editedResident,
-        id: editingResidentId,
+        id: Number(editingResidentId),
       });
     } catch (error) {
       console.error('Error editing resident:', error);
@@ -114,6 +122,7 @@ function ResidentTable() {
       room_number: 0,
       full_name: '',
       birth_year: 0,
+      gender: 'Nam',
       occupation: '',
       phone_number: '',
       email: '',
@@ -126,6 +135,7 @@ function ResidentTable() {
       room_number: 0,
       full_name: '',
       birth_year: 0,
+      gender: 'Nam',
       occupation: '',
       phone_number: '',
       email: '',
@@ -163,16 +173,42 @@ function ResidentTable() {
     setIsAdding(false); // Tắt form thêm mới
   };
   const filteredResidents = residents.filter((resident) =>
-    resident.room_number.toLowerCase().includes(searchRoom.toLowerCase()),
+    resident.room_number
+      .toString()
+      .toLowerCase()
+      .includes(searchRoom.toLowerCase()) &&
+    resident.full_name
+      .toLowerCase()
+      .includes(searchName.toLowerCase())
   );
-  const currentResidents = filteredResidents.slice(
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+  const sortedResidents = [...filteredResidents].sort((a, b) => {
+    if (sortConfig.key === 'room_number') {
+      return sortConfig.direction === 'asc'
+        ? a.room_number - b.room_number
+        : b.room_number - a.room_number;
+    }
+    if (sortConfig.key === 'full_name') {
+      return sortConfig.direction === 'asc'
+        ? a.full_name.localeCompare(b.full_name)
+        : b.full_name.localeCompare(a.full_name);
+    }
+    return 0;
+  });
+  const currentResidents = sortedResidents.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage,
   );
   useEffect(() => {
     setTotalPages(Math.ceil(filteredResidents.length / rowsPerPage));
     setCurrentPage(1);
-  }, [searchRoom]);
+  }, [searchRoom, searchName]);
 
   const handleExport = () => {
     const formattedData = currentResidents.map((resident) => ({
@@ -318,14 +354,25 @@ function ResidentTable() {
 
       <div className="resident-table-container">
         {/* Thanh tìm kiếm */}
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Tìm kiếm theo số phòng"
-            value={searchRoom}
-            onChange={(e) => setSearchRoom(e.target.value)}
-            className="form-control"
-          />
+        <div className="search-bar" style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+          <div style={{ flex: 1 }}>
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo tên"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              className="form-control"
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo số phòng"
+              value={searchRoom}
+              onChange={(e) => setSearchRoom(e.target.value)}
+              className="form-control"
+            />
+          </div>
         </div>
 
         {/* Bảng dữ liệu */}
@@ -333,8 +380,36 @@ function ResidentTable() {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Số phòng</th>
-              <th>Họ và tên</th>
+              <th>
+                Số phòng
+                <i
+                  className={`fas ${
+                    sortConfig.key === 'room_number'
+                      ? sortConfig.direction === 'asc'
+                        ? 'fa-sort-up'
+                        : 'fa-sort-down'
+                      : 'fa-sort'
+                  } sort-icon`}
+                  style={{ marginLeft: '6px', cursor: 'pointer' }}
+                  onClick={() => handleSort('room_number')}
+                  title="Sắp xếp theo số phòng"
+                />
+              </th>
+              <th>
+                Họ và tên
+                <i
+                  className={`fas ${
+                    sortConfig.key === 'full_name'
+                      ? sortConfig.direction === 'asc'
+                        ? 'fa-sort-up'
+                        : 'fa-sort-down'
+                      : 'fa-sort'
+                  } sort-icon`}
+                  style={{ marginLeft: '6px', cursor: 'pointer' }}
+                  onClick={() => handleSort('full_name')}
+                  title="Sắp xếp theo họ và tên"
+                />
+              </th>
               <th>Năm sinh</th>
               <th>Nghề nghiệp</th>
               <th>Số điện thoại</th>

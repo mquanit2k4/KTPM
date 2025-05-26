@@ -17,7 +17,7 @@ export interface RequiredFee {
   unit: UnitOptions
 }
 
-export interface ContributeFee { 
+export interface ContributeFee {
   id: number;
   name: String;
   total: number;
@@ -40,6 +40,7 @@ export interface TransferFee {
   fee_name: String;
   transferer: String;
   fee_type: String;
+  payment_date?: string;
 }
 
 export interface Resident {

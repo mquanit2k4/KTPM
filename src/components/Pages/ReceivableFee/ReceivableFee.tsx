@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { ContributeFee, RequiredFee } from '../../../interface/interface';
 import UILayout from '../../../../utils/UILayout';
 import FeeTable from './FeeTable';
+import { ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 const handleSubmitRequiredFee = async (
   data: RequiredFee,
@@ -14,6 +16,11 @@ const handleSubmitRequiredFee = async (
       await window.electronAPI.addRequiredFee(data);
     } else if (action === 'edit') {
       await window.electronAPI.editRequiredFee(data, editId);
+      toast.success('Sửa khoản thu thành công!', {
+        position: 'top-right',
+        autoClose: 3000,
+        style: { marginTop: 60 },
+      });
     } else if (action === 'delete') {
       await window.electronAPI.deleteRequiredFee(editId);
     }
@@ -30,8 +37,18 @@ const handleSubmitContributeFee = async (
   try {
     if (action === 'add') {
       await window.electronAPI.addContributeFee(data);
+      toast.success('Đã thêm khoản đóng góp mới thành công!', {
+        position: 'top-right',
+        autoClose: 3000,
+        style: { marginTop: 60 },
+      });
     } else if (action === 'edit') {
       await window.electronAPI.editContributeFee(data, editId);
+      toast.success('Sửa khoản thu thành công!', {
+        position: 'top-right',
+        autoClose: 3000,
+        style: { marginTop: 60 },
+      });
     } else if (action === 'delete') {
       await window.electronAPI.deleteContributeFee(editId);
     }
@@ -89,6 +106,7 @@ const ReceivableFee = () => {
 
   return (
     <UILayout title="Khoản thu">
+      <ToastContainer />
       <Accordion alwaysOpen>
         <FeeTable
           eventKey="0"

@@ -203,6 +203,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   fetchMyFee: () => {
     return ipcRenderer.invoke('fetch-my-fee');
   },
+
+  deleteResident: (residentId: number) => {
+    return ipcRenderer.invoke('delete-resident', residentId);
+  },
 });
 
 export type ElectronHandler = typeof electronHandler;

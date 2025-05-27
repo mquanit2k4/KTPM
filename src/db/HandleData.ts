@@ -539,26 +539,11 @@ export const addResident = async (
       residentData.phone_number,
       residentData.email,
     ];
-    db.query(query, values)
-      .then((value: [QueryResult, FieldPacket[]]) => {
-        event.sender.send('add-resident-response', {
-          success: true,
-          message: 'Thêm cư dân thành công!',
-        });
-      })
-      .catch((err) => {
-        event.sender.send('add-resident-response', {
-          success: false,
-          message: 'Thêm cư dân thất bại!',
-        });
-        console.log(err);
-      });
-  } catch {
-    event.sender.send('add-resident-response', {
-      success: false,
-      message: 'Server error!',
-    });
-    console.log('Error');
+    await db.query(query, values);
+    return { success: true, message: 'Thêm cư dân thành công!' };
+  } catch (err) {
+    console.log(err);
+    return { success: false, message: 'Thêm cư dân thất bại!' };
   }
 };
 
@@ -597,5 +582,14 @@ export const editResident = async (
       success: false,
       message: 'Server error!',
     });
+  }
+};
+
+export const deleteResident = async (event: IpcMainInvokeEvent, residentId: number) => {
+  try {
+    await db.query('DELETE FROM residents WHERE id = ?', [residentId]);
+    return { success: true, message: 'Xóa cư dân thành công' };
+  } catch (err) {
+    return { success: false, message: 'Xóa cư dân thất bại' };
   }
 };

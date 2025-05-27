@@ -46,6 +46,7 @@ import {
   queryContributeFee,
   addResident,
   editResident,
+  deleteResident,
 } from '../db/HandleData';
 
 class AppUpdater {
@@ -75,6 +76,8 @@ ipcMain.handle('fetch-number-residents', getResidentsData);
 ipcMain.handle('add-resident', addResident);
 
 ipcMain.handle('edit-resident', editResident);
+
+ipcMain.handle('delete-resident', deleteResident);
 
 ipcMain.handle('fetch-transfer-fee', async () => {
   try {

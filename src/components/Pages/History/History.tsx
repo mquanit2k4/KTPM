@@ -355,21 +355,31 @@ function HistoryPage() {
     saveAs(blob, 'history.csv');
   };
 
+  // Hàm chuẩn hóa ngày về yyyy-mm-dd
+  function toDateString(date: any) {
+    if (!date) return '';
+    if (typeof date === 'string') {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(date)) {
+        const [d, m, y] = date.split('/');
+        return `${y}-${m}-${d}`;
+      }
+      return new Date(date).toISOString().slice(0, 10);
+    }
+    if (date instanceof Date) return date.toISOString().slice(0, 10);
+    return '';
+  }
+
   // Hàm lọc dữ liệu theo loại khoản thu và khoảng thời gian
   const filteredRows = (searchValues.searchRoomFee !== ''
     ? roomFeeMap[searchValues.searchRoomFee] || []
     : requiredFee
   ).filter(row => {
-    // Lọc theo loại khoản thu
     const matchType = filterFeeType === 'Tất cả' || row.fee_type === filterFeeType;
-    // Lọc theo khoảng thời gian
+    const dateStr = toDateString(row.payment_date);
     let matchDate = true;
-    if (filterDateFrom) {
-      matchDate = matchDate && row.payment_date && row.payment_date >= filterDateFrom;
-    }
-    if (filterDateTo) {
-      matchDate = matchDate && row.payment_date && row.payment_date <= filterDateTo;
-    }
+    if (filterDateFrom) matchDate = matchDate && dateStr >= filterDateFrom;
+    if (filterDateTo) matchDate = matchDate && dateStr <= filterDateTo;
     return matchType && matchDate;
   });
 

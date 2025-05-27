@@ -1,5 +1,7 @@
 import { Modal, Form, FloatingLabel, Button } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const FeeForm = (props: any) => {
   const [validated, setValidated] = useState(false);
@@ -22,11 +24,35 @@ const FeeForm = (props: any) => {
   }, [props.data]);
 
   const handleSubmit = async (event: any) => {
+    event.preventDefault();
     const form = document.querySelector('form') as HTMLElement;
     setValidated(true);
     if (form.checkValidity() === true) {
       try {
         await props.onSubmit(data);
+        if (props.submitText === 'Thêm') {
+          const title = (props.title || '').toLowerCase();
+          if (title.includes('đóng góp')) {
+            toast.success('Đã thêm khoản đóng góp mới thành công!', {
+              position: 'top-right',
+              autoClose: 3000,
+              style: { marginTop: 60 },
+            });
+          } else if (title.includes('bắt buộc')) {
+            toast.success('Đã thêm khoản bắt buộc mới thành công!', {
+              position: 'top-right',
+              autoClose: 3000,
+              style: { marginTop: 60 },
+            });
+          }
+        }
+        if (props.submitText === 'Sửa') {
+          toast.success('Sửa khoản thu thành công!', {
+            position: 'top-right',
+            autoClose: 3000,
+            style: { marginTop: 60 },
+          });
+        }
       } catch (err) {
         console.log(err);
       } finally {
@@ -113,7 +139,7 @@ const FeeForm = (props: any) => {
           <Button variant="secondary" onClick={props.handleClose}>
             Đóng
           </Button>
-          <Button variant="success" onClick={handleSubmit}>
+          <Button variant="success" type="submit">
             {props.submitText}
           </Button>
         </Modal.Footer>

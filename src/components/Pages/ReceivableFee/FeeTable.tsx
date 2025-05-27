@@ -5,6 +5,7 @@ import FeeForm from './FeeForm';
 import { Fee } from '../../../interface/interface';
 import ContributeForm from './ContributeForm';
 import useDebounce from '../../../../utils/use_debounce';
+import { ToastContainer, toast } from 'react-toastify';
 
 const { Search } = Input;
 
@@ -201,6 +202,11 @@ const FeeTable = (props: any) => {
             variant="danger"
             onClick={async () => {
               await props.onSubmit({}, 'delete', targetData.fee_id);
+              toast.success(props.requiredFee ? 'Đã xóa khoản thu thành công!' : 'Đã xóa khoản đóng góp thành công!', {
+                position: 'top-right',
+                autoClose: 3000,
+                style: { marginTop: 60 },
+              });
               handleDeleteClose();
               setTimeout(() => {
                 props.triggerReload();

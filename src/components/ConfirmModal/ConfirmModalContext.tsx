@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useMemo,
+} from 'react';
 import ConfirmModal from './ConfirmModel';
 
 interface ConfirmModalOptions {
@@ -14,10 +20,14 @@ interface ConfirmModalContextProps {
   closeModal: () => void;
 }
 
-const ConfirmModalContext = createContext<ConfirmModalContextProps | undefined>(undefined);
+const ConfirmModalContext = createContext<ConfirmModalContextProps | undefined>(
+  undefined,
+);
 
-export const ConfirmModalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [modalOptions, setModalOptions] = useState<ConfirmModalOptions | null>(null);
+function ConfirmModalProvider({ children }: { children: ReactNode }) {
+  const [modalOptions, setModalOptions] = useState<ConfirmModalOptions | null>(
+    null,
+  );
 
   const showConfirmModal = (options: ConfirmModalOptions) => {
     setModalOptions(options);
@@ -25,8 +35,16 @@ export const ConfirmModalProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   const closeModal = () => setModalOptions(null);
 
+  const contextValue = useMemo(
+    () => ({
+      showConfirmModal,
+      closeModal,
+    }),
+    [],
+  );
+
   return (
-    <ConfirmModalContext.Provider value={{ showConfirmModal, closeModal }}>
+    <ConfirmModalContext.Provider value={contextValue}>
       {children}
       {modalOptions && (
         <ConfirmModal
@@ -44,12 +62,16 @@ export const ConfirmModalProvider: React.FC<{ children: ReactNode }> = ({ childr
       )}
     </ConfirmModalContext.Provider>
   );
-};
+}
 
 export const useConfirmModal = (): ConfirmModalContextProps => {
   const context = useContext(ConfirmModalContext);
   if (!context) {
-    throw new Error("useConfirmModal must be used within a ConfirmModalProvider");
+    throw new Error(
+      'useConfirmModal must be used within a ConfirmModalProvider',
+    );
   }
   return context;
 };
+
+export { ConfirmModalProvider };

@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Dropdown } from 'antd';
+import { Layout, Dropdown, DatePicker } from 'antd';
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import 'dayjs/locale/vi';
+import locale from 'antd/es/date-picker/locale/vi_VN';
+
 import AnimatedFrame from '../../../../utils/animation_page';
-import { BaseFee, TransferFee, RequiredFee } from '../../../interface/interface.js';
+import {
+  // BaseFee, // Xoá nếu không dùng
+  TransferFee,
+  RequiredFee,
+} from '../../../interface/interface.js';
 import ConfirmModal from '../../ConfirmModal/ConfirmModel';
 import './TransferFee.css';
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+
 const { Header, Content } = Layout;
 // const FeeMap: Record<"Tiền điện" | "Tiền nước" | "Tiền ủng hộ bão" | "Tiền ủng hộ lũ" | "Tiền wifi", string> = {
 //     "Tiền điện": "Bắt buộc",
@@ -21,19 +35,19 @@ type RoomFeeMap = {
 function TransferFeePage() {
   const [requiredFee, setRequiredFee] = useState<TransferFee[]>([]);
   const [roomFeeMap, setRoomFeeMap] = useState<RoomFeeMap>({});
-  const [allRows, setAllRows] = useState<BaseFee[]>([]);
   const [FeeMap, setFeeMap] = useState<string[]>([]);
   const [requiredFeesData, setRequiredFeesData] = useState<RequiredFee[]>([]);
 
   // search the fee that filter by room number
   const [searchValues, setSearchValues] = useState({
-    searchRoomFee: "",
-    result: "",
+    searchRoomFee: '',
+    result: '',
   });
 
+  const [selectedMonth, setSelectedMonth] = useState(null);
+
   const fetchFee = async () => {
-    const feeList: BaseFee[] = await window.electronAPI.fetchMyFee();
-    setAllRows(feeList);
+    // const feeList: BaseFee[] = await window.electronAPI.fetchMyFee();
   };
 
   fetchFee();
@@ -190,7 +204,6 @@ function TransferFeePage() {
   const handleSubmitAdding = async (e: any) => {
     e.preventDefault();
 
-    // Nếu chưa load xong danh sách phòng
     if (residentRooms.length === 0) {
       setErrorAddMessage('Đang tải dữ liệu phòng, vui lòng thử lại.');
       setErrorAddModalOpen(true);
@@ -198,16 +211,28 @@ function TransferFeePage() {
     }
 
     const inputRoom = String(submitRoomNumber).trim();
-    const validRooms = residentRooms.map((r) => r.trim());
-    console.log('DEBUG:', { inputRoom, validRooms });
+    const inputFeeName = submitFeeName.trim();
+    const inputMonth = dayjs(submitDate).format('YYYY-MM');
+    const paidFees = roomFeeMap[inputRoom] || [];
+    const isDuplicate = paidFees.some(fee =>
+      fee.fee_name === inputFeeName &&
+      fee.fee_type === 'Bắt buộc' &&
+      fee.payment_date &&
+      dayjs(fee.payment_date).format('YYYY-MM') === inputMonth
+    );
 
-    if (!validRooms.includes(inputRoom)) {
+    if (!residentRooms.map((r) => r.trim()).includes(inputRoom)) {
       setErrorAddMessage('Nhập sai số phòng.');
       setErrorAddModalOpen(true);
       return;
     }
 
-    // Nếu hợp lệ, xác nhận nộp tiền
+    if (isDuplicate) {
+      setErrorAddMessage('Khoản thu này đã được nộp trong tháng này.');
+      setErrorAddModalOpen(true);
+      return;
+    }
+
     setConfirmationAddMessage(`Bạn có chắc chắn nộp tiền cho phòng ${submitRoomNumber}?`);
     setConfirmAddModalOpen(true);
   };
@@ -222,31 +247,20 @@ function TransferFeePage() {
         Number(submitMoney),
         submitFeeName,
         submitTransferrer,
-        "Bắt buộc",
+        'Bắt buộc',
         paymentDate
       );
 
       if (success) {
+        await fetchRequiredFee(); // Đảm bảo cập nhật dữ liệu mới nhất
         setSuccessAddModalOpen(true);
-
-        roomFeeMap[submitRoomNumber.toString()].push({
-          room_number: Number(submitRoomNumber),
-          money: Number(submitMoney),
-          fee_name: submitFeeName,
-          transferer: submitTransferrer,
-          fee_type: "Bắt buộc",
-          payment_date: paymentDate
-        });
-
       } else {
-        setErrorAddMessage("Nộp tiền không thành công.");
+        setErrorAddMessage('Nộp tiền không thành công.');
         setErrorAddModalOpen(true);
       }
     } catch(error) {
       console.log(error);
     }
-
-    fetchRequiredFee();
   };
 
   //for editing
@@ -310,6 +324,45 @@ function TransferFeePage() {
     }
 
     fetchRequiredFee();
+  };
+
+  // Hàm lọc các khoản đã nộp trong tháng đã chọn
+  const getPaidFees = () => {
+    if (!searchValues.searchRoomFee || !selectedMonth) return [];
+    const roomNumber = searchValues.searchRoomFee;
+    const monthStart = dayjs(selectedMonth).startOf('month');
+    const monthEnd = dayjs(selectedMonth).endOf('month');
+    return (
+      roomFeeMap[roomNumber]?.filter((fee) => {
+        const paymentDate = dayjs(fee.payment_date);
+        return (
+          paymentDate.isSameOrAfter(monthStart, 'day') &&
+          paymentDate.isSameOrBefore(monthEnd, 'day') &&
+          fee.fee_type === 'Bắt buộc'
+        );
+      }) || []
+    );
+  };
+
+  // Hàm lọc các khoản chưa nộp trong tháng đã chọn
+  const getUnpaidFees = () => {
+    if (!searchValues.searchRoomFee || !selectedMonth) return [];
+    const roomNumber = searchValues.searchRoomFee;
+    const monthStart = dayjs(selectedMonth).startOf('month');
+    const monthEnd = dayjs(selectedMonth).endOf('month');
+    // Danh sách khoản bắt buộc
+    const allRequiredFees = requiredFeesData.map((fee) => ({
+      room_number: Number(roomNumber),
+      fee_name: fee.name,
+      money: fee.unit_price,
+      due_date: monthEnd.format('DD/MM/YYYY'),
+    }));
+    // Danh sách khoản đã nộp trong tháng
+    const paidFees = getPaidFees();
+    // Lọc khoản chưa nộp
+    return allRequiredFees.filter(
+      (requiredFee) => !paidFees.some((paidFee) => paidFee.fee_name === requiredFee.fee_name)
+    );
   };
 
   return (
@@ -394,6 +447,11 @@ function TransferFeePage() {
                         required
                         readOnly
                       />
+                      {submitMoney && !isNaN(Number(submitMoney)) && (
+                        <div style={{ color: '#888', fontSize: 13, marginTop: 2 }}>
+                          {Number(submitMoney).toLocaleString('vi-VN')} đ
+                        </div>
+                      )}
                     </div>
                     <div className="mb-4">
                       <label
@@ -472,57 +530,83 @@ function TransferFeePage() {
 
                 <div className="bg-white p-6 rounded-lg shadow-md">
                   <h2 className="text-2xl font-semibold mb-4">Tra cứu tiền nộp</h2>
-                  <label
-                        className="block text-sm font-medium mb-2"
-                        htmlFor="roomNumber"
-                      >
-                        Số phòng
-                  </label>
-                  <div className="mb-4">
-                    <input
-                      type="text"
-                      value={searchValues.searchRoomFee}
-                      onChange={handleSearching}
-                      className="w-full p-2 border rounded-md"
-                      placeholder="Nhập số phòng"
-                    />
+                  <div className="flex gap-4 mb-4">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium mb-2" htmlFor="roomNumber">Số phòng</label>
+                      <input
+                        type="text"
+                        id="roomNumber"
+                        value={searchValues.searchRoomFee}
+                        onChange={handleSearching}
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Nhập số phòng"
+                      />
+                    </div>
+                    <div className="flex-1" style={{ marginTop: 8 }}>
+                      <label className="block text-sm font-medium mb-2" htmlFor="monthPicker">Tháng</label>
+                      <DatePicker
+                        id="monthPicker"
+                        picker="month"
+                        value={selectedMonth}
+                        onChange={setSelectedMonth}
+                        locale={locale}
+                        className="w-full"
+                        format="MM/YYYY"
+                      />
+                    </div>
                   </div>
-                  <table className="min-w-full table-auto border-collapse">
-                    <thead>
-                      <tr className="bg-gray-200">
-                        <th>Số phòng</th>
-                        <th>Số tiền đã nộp</th>
-                        <th>Tên khoản thu</th>
-                        <th>Người nộp</th>
-                        <th>Thời gian nộp</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                        {searchValues.searchRoomFee !== ""? (
-                            roomFeeMap[searchValues.searchRoomFee]?.map((row, index) => (
-                            <tr key={index}>
-                                <td>{row.room_number}</td>
-                                <td>{row.money}</td>
-                                <td>{row.fee_name}</td>
-                                <td>{row.transferer}</td>
-                                <td>
-                                  {(row as any).payment_date
-                                    ? typeof (row as any).payment_date === 'string'
-                                      ? (row as any).payment_date
-                                      : new Date((row as any).payment_date).toLocaleDateString('vi-VN')
-                                    : ''}
-                                </td>
+                  {searchValues.searchRoomFee && selectedMonth && (
+                    <>
+                      <h3 className="text-lg font-semibold mb-2 text-left" >Các khoản bắt buộc đã nộp</h3>
+                      <table className="min-w-full table-auto border-collapse mb-6">
+                        <thead>
+                          <tr className="bg-gray-200">
+                            <th>Số phòng</th>
+                            <th>Tên khoản thu</th>
+                            <th>Số tiền đã nộp</th>
+                            <th>Người nộp</th>
+                            <th>Thời gian nộp</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {getPaidFees().length > 0 ? getPaidFees().map((row, idx) => (
+                            <tr key={row.fee_name + String(row.payment_date)}>
+                              <td>{row.room_number}</td>
+                              <td>{row.fee_name}</td>
+                              <td>{typeof row.money === 'number' ? row.money.toLocaleString('vi-VN') : row.money}</td>
+                              <td>{row.transferer}</td>
+                              <td>{row.payment_date ? dayjs(row.payment_date).format('DD/MM/YYYY') : ''}</td>
                             </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan={5} style={{ textAlign: "center", verticalAlign: "middle" }}>
-                                    Hãy nhập số phòng
-                                </td>
+                          )) : (
+                            <tr><td colSpan={5} className="text-center">Không có khoản nào</td></tr>
+                          )}
+                        </tbody>
+                      </table>
+                      <h3 className="text-lg font-semibold mb-2 text-left" style={{ marginTop: 16 }}>Các khoản bắt buộc chưa nộp</h3>
+                      <table className="min-w-full table-auto border-collapse">
+                        <thead>
+                          <tr className="bg-gray-200">
+                            <th>Số phòng</th>
+                            <th>Tên khoản thu</th>
+                            <th>Số tiền cần nộp</th>
+                            <th>Hạn chót cần nộp</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {getUnpaidFees().length > 0 ? getUnpaidFees().map((row, idx) => (
+                            <tr key={row.fee_name + String(row.due_date)}>
+                              <td>{row.room_number}</td>
+                              <td>{row.fee_name}</td>
+                              <td>{typeof row.money === 'number' ? row.money.toLocaleString('vi-VN') : row.money}</td>
+                              <td>{row.due_date}</td>
                             </tr>
-                        )}
-                    </tbody>
-                  </table>
+                          )) : (
+                            <tr><td colSpan={4} className="text-center">Không có khoản nào</td></tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </>
+                  )}
                 </div>
                 {/* </div> */}
 

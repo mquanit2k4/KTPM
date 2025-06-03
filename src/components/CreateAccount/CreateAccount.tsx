@@ -1,17 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IpcRendererEvent } from 'electron/renderer';
 import { Form, Button, Container, FloatingLabel } from 'react-bootstrap';
-import { FaEyeSlash, FaLock } from 'react-icons/fa';
+import { FaEyeSlash } from 'react-icons/fa';
 import { IpcResponse } from '../../interface/interface';
 import { notification } from '../../../utils/toast_notification';
 import AnimatedFrame from '../../../utils/animation_page';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CreateAccount.css';
 
-var dumState = true;
-
-const CreateAccount = () => {
+function CreateAccount() {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -24,7 +22,7 @@ const CreateAccount = () => {
   const navigate = useNavigate();
 
   const handleToggle = () => {
-    const inputNode = document.getElementById('myPassword') as HTMLElement;
+    const inputNode = document.getElementById('myPassword') as HTMLInputElement;
     if (inputNode.type === 'password') inputNode.type = 'text';
     else inputNode.type = 'password';
   };
@@ -151,6 +149,6 @@ const CreateAccount = () => {
       </Container>
     </AnimatedFrame>
   );
-};
+}
 
 export default CreateAccount;

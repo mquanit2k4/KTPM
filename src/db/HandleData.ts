@@ -593,3 +593,43 @@ export const deleteResident = async (event: IpcMainInvokeEvent, residentId: numb
     return { success: false, message: 'Xóa cư dân thất bại' };
   }
 };
+
+export const addTransferFee = async (
+  room_number: number,
+  money: number,
+  fee_name: string,
+  transferer: string,
+  fee_type: string,
+  payment_date?: string
+) => {
+  try {
+    const query = `
+      INSERT INTO transfer_fee
+      (room_number, money, fee_name, transferer, fee_type, payment_date)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+      room_number,
+      money,
+      fee_name,
+      transferer,
+      fee_type,
+      payment_date || new Date().toISOString().slice(0, 10)
+    ];
+
+    console.log('Executing query:', query);
+    console.log('With values:', values);
+
+    const [result] = await db.query(query, values);
+    console.log('Query result:', result);
+    return 1; // Return success
+  } catch (err) {
+    console.error('Error adding transfer fee. Full error:', err);
+    if (err instanceof Error) {
+      console.error('Error message:', err.message);
+      console.error('Error stack:', err.stack);
+    }
+    return 0; // Return failure
+  }
+};

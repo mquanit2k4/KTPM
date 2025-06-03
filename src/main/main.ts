@@ -101,7 +101,7 @@ ipcMain.handle('fetch-my-fee', async () => {
 
 ipcMain.handle(
   'add-transfer-fee',
-  (
+  async (
     event: IpcMainInvokeEvent,
     room_number: number,
     money: number,
@@ -112,29 +112,21 @@ ipcMain.handle(
   ) => {
     const paymentDate = payment_date || new Date().toISOString().slice(0, 10);
 
-    const query = 'insert into transfer_fee values (?, ?, ?, ?, ?, ?);';
+    const query = `
+      INSERT INTO transfer_fee
+      (room_number, money, fee_name, transferer, fee_type, payment_date)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
     const values = [room_number, money, fee_name, transferer, fee_type, paymentDate];
 
     try {
-      db.query(query, values)
-        .then(() => {
-          event.sender.send('add-response', {
-            success: true,
-            message: 'add successful',
-          });
-        })
-        .catch(() => {
-          event.sender.send('add-response', {
-            success: false,
-            message: 'add failed!',
-          });
-        });
+      await db.query(query, values);
       return 1;
     } catch (err) {
-      console.log('Server error!');
+      console.error('Error adding transfer fee:', err);
       return 0;
     }
-  },
+  }
 );
 
 ipcMain.handle('fetch-required-fee', getRequiredFeeData);

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ipcRenderer, IpcRendererEvent } from 'electron';
+import React, { useState } from 'react';
+import { IpcRendererEvent } from 'electron';
 import { useNavigate } from 'react-router-dom';
 import { Spinner, Alert, Button } from 'react-bootstrap';
 import { FaLock, FaUser, FaEyeSlash } from 'react-icons/fa';
@@ -7,7 +7,7 @@ import AnimatedFrame from '../../../utils/animation_page';
 import { IpcResponse, HandleLoginState } from '../../interface/interface';
 import './LoginForm.css';
 
-const LoginForm: React.FC<HandleLoginState> = ({ onAction }) => {
+function LoginForm({ onAction }: HandleLoginState) {
   const [input, setInput] = useState({
     username: '',
     password: '',
@@ -19,7 +19,7 @@ const LoginForm: React.FC<HandleLoginState> = ({ onAction }) => {
 
   const navigate = useNavigate();
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setInput((prevInput) => ({
       ...prevInput,
@@ -53,7 +53,9 @@ const LoginForm: React.FC<HandleLoginState> = ({ onAction }) => {
     );
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>,
+  ) => {
     e.preventDefault();
     setMessage('');
     setIsLoading(true);
@@ -66,7 +68,7 @@ const LoginForm: React.FC<HandleLoginState> = ({ onAction }) => {
   };
 
   const handleToggle = () => {
-    const inputNode = document.getElementById('myPassword') as HTMLElement;
+    const inputNode = document.getElementById('myPassword') as HTMLInputElement;
     if (inputNode.type === 'password') inputNode.type = 'text';
     else inputNode.type = 'password';
   };
@@ -74,7 +76,11 @@ const LoginForm: React.FC<HandleLoginState> = ({ onAction }) => {
   return (
     <AnimatedFrame>
       <div className="login-container">
-        <img src="/assets/icons/logo.png" alt="Logo" className="welcome-image" />
+        <img
+          src="/assets/icons/logo.png"
+          alt="Logo"
+          className="welcome-image"
+        />
         <div className="welcome-text">
           CHÀO MỪNG BẠN ĐẾN VỚI CHUNG CƯ T&T DC COMPLEX
         </div>
@@ -109,18 +115,23 @@ const LoginForm: React.FC<HandleLoginState> = ({ onAction }) => {
             </div>
 
             <div className="remember-forgot">
-              <input
-                type="checkbox"
-                id="myCheckbox"
-                checked={input.admin}
-                onChange={handleCheckboxChange}
-              />
               <label htmlFor="myCheckbox">
+                <input
+                  type="checkbox"
+                  id="myCheckbox"
+                  checked={input.admin}
+                  onChange={handleCheckboxChange}
+                  aria-label="Đăng nhập với tư cách quản trị viên"
+                />
                 Đăng nhập với tư cách quản trị viên
               </label>
             </div>
 
-            <Button onClick={handleSubmit} disabled={isLoading} variant="primary">
+            <Button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              variant="primary"
+            >
               {isLoading ? (
                 <>
                   <Spinner
@@ -138,9 +149,20 @@ const LoginForm: React.FC<HandleLoginState> = ({ onAction }) => {
             </Button>
 
             <div className="remember-forgot" style={{ marginTop: '10px' }}>
-              <a href="#" onClick={(e) => navigate('/sign-up')}>
+              <button
+                type="button"
+                onClick={() => navigate('/sign-up')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'inherit',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: 'inherit',
+                }}
+              >
                 Chưa có tài khoản? Đăng ký
-              </a>
+              </button>
             </div>
           </form>
           {message && (
@@ -152,6 +174,6 @@ const LoginForm: React.FC<HandleLoginState> = ({ onAction }) => {
       </div>
     </AnimatedFrame>
   );
-};
+}
 
 export default LoginForm;

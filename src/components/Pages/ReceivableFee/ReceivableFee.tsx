@@ -66,7 +66,11 @@ const ReceivableFee = () => {
     try {
       setLoading((prev) => [true, prev[1]]);
       const requiredFeeData = await window.electronAPI.fetchRequiredFee();
-      setRequiredFee(requiredFeeData);
+      const requiredFeeWithName = requiredFeeData.map((fee: any) => ({
+        ...fee,
+        name: fee.name || fee.fee_name,
+      }));
+      setRequiredFee(requiredFeeWithName);
     } catch (err) {
       console.error('Error fetching RequiredFee data:', err);
     } finally {
@@ -78,7 +82,24 @@ const ReceivableFee = () => {
     try {
       setLoading((prev) => [prev[0], true]);
       const contributeFeeData = await window.electronAPI.fetchContributeFee();
-      setContributeFee(contributeFeeData);
+      const transferFeeData = await window.electronAPI.fetchTransferFee();
+
+      // Tính tổng số tiền đã đóng góp cho từng khoản đóng góp
+      const totalByFeeName: Record<string, number> = {};
+      transferFeeData.forEach((item: any) => {
+        if (item.fee_type === 'Tự nguyện') {
+          totalByFeeName[item.fee_name] = (totalByFeeName[item.fee_name] || 0) + Number(item.money);
+        }
+      });
+
+      // Gán trường name và tổng tiền vào từng khoản đóng góp
+      const contributeFeeWithTotal = contributeFeeData.map((fee: any, idx: number) => ({
+        ...fee,
+        name: fee.name || fee.fee_name || `Khoản đóng góp ${idx + 1}`,
+        totalAmount: totalByFeeName[fee.fee_name || fee.name] || 0,
+      }));
+
+      setContributeFee(contributeFeeWithTotal);
     } catch (err) {
       console.error('Error fetching ContributeFee data:', err);
     } finally {

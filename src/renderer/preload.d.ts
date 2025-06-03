@@ -69,6 +69,7 @@ declare global {
         fee_name: string,
         transferer: string,
         fee_type: string,
+        payment_date?: string,
       ) => number;
 
       fetchMyFee: () => BaseFee[];

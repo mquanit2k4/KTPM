@@ -69,7 +69,7 @@ function FeePage() {
     });
 
   };
-  
+
   useEffect(() => {
     if (searchValues.searchRoomFee) {
       var result = "";
@@ -108,7 +108,7 @@ function FeePage() {
 
   const handleSubmitDeleting = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     var check = 0;
 
     for (var i = 0; i < requiredFee.length; i++) {
@@ -143,7 +143,7 @@ function FeePage() {
 
     fetchRequiredFee();
   };
-  
+
   // for adding
   const [isErrorAddModalOpen, setErrorAddModalOpen] = useState(false);
   const [isConfirmAddModalOpen, setConfirmAddModalOpen] = useState(false);
@@ -157,7 +157,7 @@ function FeePage() {
 
   const handleSubmitAdding = async (e: any) => {
     e.preventDefault();
-    
+
     var check = 0;
 
     for (var i = 0; i < requiredFee.length; i++) {
@@ -220,7 +220,7 @@ function FeePage() {
 
   const handleSubmitEditing = async (e: any) => {
     e.preventDefault();
-    
+
     var check = 0;
 
     for (var i = 0; i < requiredFee.length; i++) {
@@ -333,7 +333,7 @@ function FeePage() {
                         required
                       />
                     </div>
-                    
+
                     <button
                       type="submit"
                       className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
@@ -434,7 +434,7 @@ function FeePage() {
                         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
                       >
                         Chỉnh sửa khoản thu
-                    </button>   
+                    </button>
 
                     <ConfirmModal
                       show={isErrorEditModalOpen}
@@ -467,7 +467,7 @@ function FeePage() {
                       confirmText=""
                       cancelText="Huỷ"
                     />
-                  </form>              
+                  </form>
                 </div>
 
                 {/* Room Payments Section */}
@@ -496,13 +496,13 @@ function FeePage() {
                         type="submit"
                         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
                         // onClick={(e) => {
-                        //   e.preventDefault(); 
+                        //   e.preventDefault();
                         //   setDeleteModalOpen(true)
-                        
+
                         // }}
                       >
                         Xoá khoản thu
-                    </button>    
+                    </button>
 
                     <ConfirmModal
                       show={isErrorDeleteModalOpen}
@@ -536,7 +536,7 @@ function FeePage() {
                       cancelText="Huỷ"
                     />
 
-                  </form>            
+                  </form>
                 </div>
               {/* </div> */}
 

@@ -1,8 +1,9 @@
+import React from 'react';
 import { Button } from 'react-bootstrap';
 import { HandleLoginState } from '../../interface/interface';
 import './LogoutButton.css';
 
-const LogoutButton: React.FC<HandleLoginState> = ({ onAction }) => {
+function LogoutButton({ onAction }: HandleLoginState) {
   const handleLogout = () => {
     onAction(false);
   };
@@ -11,6 +12,6 @@ const LogoutButton: React.FC<HandleLoginState> = ({ onAction }) => {
       Đăng xuất
     </Button>
   );
-};
+}
 
 export default LogoutButton;

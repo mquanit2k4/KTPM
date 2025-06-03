@@ -363,6 +363,11 @@ function TransferContributeFeePage() {
                         placeholder="Nhập số tiền"
                         required
                       />
+                      {submitMoney && !isNaN(Number(submitMoney)) && (
+                        <div style={{ color: '#888', fontSize: 13, marginTop: 2 }}>
+                          {Number(submitMoney).toLocaleString('vi-VN')} đ
+                        </div>
+                      )}
                     </div>
                     <div className="mb-4">
                       <label
@@ -460,19 +465,19 @@ function TransferContributeFeePage() {
                     <thead>
                       <tr className="bg-gray-200">
                         <th>Số phòng</th>
-                        <th>Số tiền đã nộp</th>
                         <th>Tên khoản thu</th>
+                        <th>Số tiền đã nộp</th>
                         <th>Người nộp</th>
                         <th>Thời gian nộp</th>
                       </tr>
                     </thead>
                     <tbody>
                         {searchValues.searchRoomFee !== ""? (
-                            roomFeeMap[searchValues.searchRoomFee]?.map((row, index) => (
+                            roomFeeMap[searchValues.searchRoomFee]?.filter(row => row.fee_type === 'Tự nguyện').map((row, index) => (
                             <tr key={index}>
                                 <td>{row.room_number}</td>
-                                <td>{row.money}</td>
                                 <td>{row.fee_name}</td>
+                                <td>{typeof row.money === 'number' ? row.money.toLocaleString('vi-VN') : row.money}</td>
                                 <td>{row.transferer}</td>
                                 <td>
                                   {row.payment_date

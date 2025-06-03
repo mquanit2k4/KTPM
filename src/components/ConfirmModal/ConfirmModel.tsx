@@ -11,15 +11,15 @@ interface ConfirmModalProps {
   cancelText?: string;
 }
 
-const ConfirmModal: React.FC<ConfirmModalProps> = ({
+function ConfirmModal({
   show,
   onClose,
   onConfirm,
-  title = "Xác nhận hành động",
-  bodyText = "Bạn có chắc chắn muốn xóa tài khoản này?",
-  confirmText = "Xóa",
-  cancelText = "Hủy bỏ",
-}) => {
+  title = 'Xác nhận hành động',
+  bodyText = 'Bạn có chắc chắn muốn xóa tài khoản này?',
+  confirmText = 'Xóa',
+  cancelText = 'Hủy bỏ',
+}: ConfirmModalProps) {
   return (
     <Modal show={show} onHide={onClose}>
       <Modal.Header closeButton>
@@ -38,6 +38,13 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       </Modal.Footer>
     </Modal>
   );
+}
+
+ConfirmModal.defaultProps = {
+  title: 'Xác nhận hành động',
+  bodyText: 'Bạn có chắc chắn muốn xóa tài khoản này?',
+  confirmText: 'Xóa',
+  cancelText: 'Hủy bỏ',
 };
 
 export default ConfirmModal;

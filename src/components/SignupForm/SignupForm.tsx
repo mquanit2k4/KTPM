@@ -27,10 +27,7 @@ function Signup() {
       setMessage('Password retype incorrect!');
     } else {
       try {
-        const username = input.username;
-        const password = input.password;
-        const email = input.email;
-        const name = input.name;
+        const { username, password, email, name } = input;
         await window.electronAPI.signup({
           username,
           password,

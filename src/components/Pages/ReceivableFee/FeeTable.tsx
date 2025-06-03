@@ -77,55 +77,43 @@ const FeeTable = (props: any) => {
             </thead>
             <tbody>
               {!props.loading ? (
-                props.rowData.length == 0 ? (
+                props.rowData.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={props.theadTitle.length}
-                      style={{ textAlign: 'center' }}
-                    >
+                    <td colSpan={props.theadTitle.length} style={{ textAlign: 'center' }}>
                       Không có dữ liệu
                     </td>
                   </tr>
                 ) : (
-                  props.rowData.map((data: any, index: number) => (
-                    <tr style={{ transform: 'rotate(0)' }}>
-                      <td scope="row">
-                        {/* <a href="#" className="stretched-link">
-                          {index + 1}
-                        </a> */}
-                        {index + 1}
-                      </td>
-                      {Object.values(data).map(
-                        (item: any, index: number) =>
-                          index != 0 && <td>{item}</td>,
-                      )}
-                      <td>
-                        <Button
-                          variant="warning"
-                          onClick={() => {
-                            handleEditFormShow(index);
-                          }}
-                        >
-                          Sửa
-                        </Button>
-                        <Button
-                          variant="danger"
-                          onClick={() => {
-                            handleDeleteShow(index);
-                          }}
-                        >
-                          Xóa
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
+                  props.requiredFee ? (
+                    props.rowData.map((data: any, index: number) => (
+                      <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>{data.fee_name}</td>
+                        <td>{typeof data.unit_price === 'number' ? data.unit_price.toLocaleString('vi-VN') : data.unit_price}</td>
+                        <td>{data.unit}</td>
+                        <td>
+                          <Button variant="warning" onClick={() => handleEditFormShow(index)}>Sửa</Button>
+                          <Button variant="danger" onClick={() => handleDeleteShow(index)}>Xóa</Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    props.rowData.map((data: any, index: number) => (
+                      <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>{data.name}</td>
+                        <td>{typeof data.totalAmount === 'number' ? data.totalAmount.toLocaleString('vi-VN') : data.totalAmount}</td>
+                        <td>
+                          <Button variant="warning" onClick={() => handleEditFormShow(index)}>Sửa</Button>
+                          <Button variant="danger" onClick={() => handleDeleteShow(index)}>Xóa</Button>
+                        </td>
+                      </tr>
+                    ))
+                  )
                 )
               ) : (
                 <tr>
-                  <td
-                    colSpan={props.theadTitle.length}
-                    style={{ textAlign: 'center' }}
-                  >
+                  <td colSpan={props.theadTitle.length} style={{ textAlign: 'center' }}>
                     Đang tải dữ liệu, vui lòng đợi...
                   </td>
                 </tr>

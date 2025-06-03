@@ -2,25 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import Papa from 'papaparse';
 import { Layout } from 'antd';
-import {
-  UserOutlined,
-  HomeOutlined,
-  BarChartOutlined,
-  FormOutlined,
-  NotificationOutlined,
-  DollarCircleOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  FilterOutlined,
-} from '@ant-design/icons';
-// import './FeePage.css';
+import { FilterOutlined } from '@ant-design/icons';
 import AnimatedFrame from '../../../../utils/animation_page';
-import { Link } from 'react-router-dom';
-import { BaseFee, TransferFee } from '../../../interface/interface.js';
-import SideBar from '../SideBar/SideBar';
-import ConfirmModal from '../../ConfirmModal/ConfirmModel';
+import { TransferFee } from '../../../interface/interface.js';
 
-const { Header, Sider, Content } = Layout;
+const { Header, Content } = Layout;
 // const FeeMap: Record<"Tiền điện" | "Tiền nước" | "Tiền ủng hộ bão" | "Tiền ủng hộ lũ" | "Tiền wifi", string> = {
 //     "Tiền điện": "Bắt buộc",
 //     "Tiền wifi": "Bắt buộc",
@@ -35,15 +21,8 @@ type RoomFeeMap = {
 };
 
 function HistoryPage() {
-  const [collapsed, setCollapsed] = useState(false);
-  const [roomNumber, setRoomNumber] = useState("");
   const [requiredFee, setRequiredFee] = useState<TransferFee[]>([]);
-  const [searchRoom, setSearchRoom] = useState("");
   const [roomFeeMap, setRoomFeeMap] = useState<RoomFeeMap>({});
-  const [allRows, setAllRows] = useState<BaseFee[]>([]);
-  const [FeeMap, setFeeMap] = useState<string[]>([]);
-
-  const [selectedFeeType, setSelectedFeeType] = useState<string>(""); // State for selected fee type
 
   // search the fee that filter by room number
   const [searchValues, setSearchValues] = useState({
@@ -55,222 +34,34 @@ function HistoryPage() {
   const [filterDateFrom, setFilterDateFrom] = useState('');
   const [filterDateTo, setFilterDateTo] = useState('');
 
-  const fetchFee = async () => {
-    const requiredFee: BaseFee[] = await window.electronAPI.fetchMyFee();
-
-    setAllRows(requiredFee);
-  };
-
-  fetchFee();
-
   // fetch data from database
   const fetchRequiredFee = async () => {
-      const requiredFee: TransferFee[] = await window.electronAPI.fetchTransferFee();
-      const mapFee: RoomFeeMap = {};
-
-      for (const fee of requiredFee) {
-        const roomNumber = fee["room_number"].toString();
-
-        if (!mapFee[roomNumber]) {
-            mapFee[roomNumber] = [];
-          }
-
-          mapFee[roomNumber].push(fee);
+    const requiredFeeData: TransferFee[] = await window.electronAPI.fetchTransferFee();
+    const mapFee: RoomFeeMap = {};
+    requiredFeeData.forEach((fee) => {
+      const roomNumber = fee.room_number.toString();
+      if (!mapFee[roomNumber]) {
+        mapFee[roomNumber] = [];
       }
-
-      setRequiredFee(requiredFee);
-      setRoomFeeMap(mapFee);
-
+      mapFee[roomNumber].push(fee);
+    });
+    setRequiredFee(requiredFeeData);
+    setRoomFeeMap(mapFee);
   };
 
-  useEffect(() => {
-  // Simulate fetching data
-  const fetchFees = async () => {
-    const requiredFeeData = await window.electronAPI.fetchContributeFee();
-    const fees = requiredFeeData.map((row: any) => String(row.fee_name)); // Ensure strings
-    console.log(fees);
-    setFeeMap(fees); // Set the list of fees
-  };
-
-  fetchFees();
-}, []);
   useEffect(() => {fetchRequiredFee();}, []);
 
   // for searching
   const handleSearching = (e: any) => {
-    const { name, value } = e.target;
-
+    const { value } = e.target;
     setSearchValues({
       searchRoomFee: value,
-      result: "",
+      result: '',
     });
-
-    fetchRequiredFee();
-
-  };
-
-  // for searching by fee type
-  const handleFeeTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedFeeType(e.target.value);
-  };
-
-//   useEffect(() => {
-//     if (searchValues.searchRoomFee) {
-//       var result = "";
-
-//       for (const fee of requiredFee) {
-//         if (searchValues.searchRoomFee == fee["room_number"].toString()) {
-//           result = fee["money"].toString();
-//           break;
-//         }
-//       }
-
-//       setSearchValues({
-//         searchRoomFee: searchValues.searchRoomFee,
-//         result: result
-//       });
-//     } else {
-
-//       setSearchValues({
-//         searchRoomFee: "",
-//         result: ""
-//       });
-
-//     }
-//   }, [searchValues.searchRoomFee]);
-
-  // for deleting
-  const [searchDeletedRoom, setSearchDeletedRoom] = useState("");
-  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [isErrorDeleteModalOpen, setErrorDeleteModalOpen] = useState(false);
-  const [isConfirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
-  const [isSuccessDeleteModalOpen, setSuccessDeleteModalOpen] = useState(false);
-  const [errorDeleteMessage, setErrorDeleteMessage] = useState('');
-  const [confirmationDeleteMessage, setConfirmationDeleteMessage] = useState('');
-
-  const handleCloseDelete = () => setDeleteModalOpen(false);
-
-  const handleSubmitDeleting = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    var check = 0;
-
-    for (var i = 0; i < requiredFee.length; i++) {
-      if (searchDeletedRoom == requiredFee[i]["room_number"].toString()) {
-        check = 1;
-        break;
-      }
-    }
-
-    if (!check) {
-      setErrorDeleteMessage("Vui lòng nhập đúng số phòng");
-      setErrorDeleteModalOpen(true); // Show error modal
-    } else {
-      setConfirmationDeleteMessage(`Bạn có chắc chắn xoá khoản thu của phòng ${searchDeletedRoom}?`);
-      setConfirmDeleteModalOpen(true); // Show confirmation modal
-    }
-  };
-
-  const handleConfirmDeleting = async () => {
-    setConfirmDeleteModalOpen(false); // Close confirmation modal
-    try {
-      var success = 1;
-      // const success = await window.electronAPI.deleteCompulsoryFee(Number(searchDeletedRoom));
-      if (success) {
-        setSuccessDeleteModalOpen(true); // Show success modal
-      } else {
-        setErrorDeleteMessage("Thêm khoản thu không thành công.");
-        setErrorDeleteModalOpen(true);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-
-    fetchRequiredFee();
-  };
-
-  // for adding
-  const [isErrorAddModalOpen, setErrorAddModalOpen] = useState(false);
-  const [isConfirmAddModalOpen, setConfirmAddModalOpen] = useState(false);
-  const [isSuccessAddModalOpen, setSuccessAddModalOpen] = useState(false);
-  const [errorAddMessage, setErrorAddMessage] = useState('');
-  const [confirmationAddMessage, setConfirmationAddMessage] = useState('');
-
-  const [submitRoomNumber, setSubmitRoomNumber] = useState("");
-  const [submitTransferrer, setSubmitTransferrer] = useState("");
-  const [submitFeeName, setSubmitFeeName] = useState("");
-  const [submitMoney, setSubmitMoney] = useState("");
-  const [submitDate, setSubmitDate] = useState("");
-
-  const handleSubmitAdding = async (e: any) => {
-    e.preventDefault();
-
-    var check = 0;
-
-    for (const row of allRows) {
-      if (submitRoomNumber == row["room_number"].toString()) {
-        check = 1;
-        break;
-      }
-    }
-
-    if (!check) {
-      setErrorAddMessage("Nhập sai số phòng.");
-      setErrorAddModalOpen(true);
-    } else {
-      setConfirmationAddMessage(`Bạn có chắc chắn nộp tiền cho phòng ${submitRoomNumber}?`)
-      setConfirmAddModalOpen(true);
-    }
-  };
-
-  const handleConfirmAdding = async () => {
-    setConfirmAddModalOpen(false); // Close confirmation modal
-
-    try {
-      const paymentDate = submitDate || new Date().toISOString().slice(0, 10);
-      const success = await window.electronAPI.addTransferFee(
-        Number(submitRoomNumber),
-        Number(submitMoney),
-        submitFeeName,
-        submitTransferrer,
-        "Tự nguyện",
-        paymentDate
-      );
-
-      if (success) {
-        setSuccessAddModalOpen(true);
-
-        roomFeeMap[submitRoomNumber.toString()].push({
-          room_number: Number(submitRoomNumber),
-          money: Number(submitMoney),
-          fee_name: submitFeeName,
-          transferer: submitTransferrer,
-          fee_type: "Tự nguyện",
-          payment_date: paymentDate,
-        });
-
-      } else {
-        setErrorAddMessage("Nộp tiền không thành công.");
-        setErrorAddModalOpen(true);
-      }
-    } catch(error) {
-      console.log(error);
-    }
-
     fetchRequiredFee();
   };
 
   //for editing
-  const [searchEditedRoom, setSearchEditedRoom] = useState("");
-  const [editedMoney, setEditedMoney] = useState("");
-  const [editedEmail, setEditedEmail] = useState("");
-  const [editedTransferrer, setEditedTransferrer] = useState("");
-
-  const [isErrorEditModalOpen, setErrorEditModalOpen] = useState(false);
-  const [isConfirmEditModalOpen, setConfirmEditModalOpen] = useState(false);
-  const [isSuccessEditModalOpen, setSuccessEditModalOpen] = useState(false);
-  const [errorEditMessage, setErrorEditMessage] = useState('');
-  const [confirmationEditMessage, setConfirmationEditMessage] = useState('');
   const [curEditMoney, setCurEditMoney] = useState('');
   const [curEditTransferrer, setCurEditTransferrer] = useState('');
 
@@ -280,7 +71,7 @@ function HistoryPage() {
     var check = 0;
 
     for (var i = 0; i < requiredFee.length; i++) {
-      if (searchEditedRoom == requiredFee[i]["room_number"].toString()) {
+      if (searchValues.searchRoomFee == requiredFee[i]["room_number"].toString()) {
         setCurEditMoney(requiredFee[i]["money"].toString());
         // setCurEditTransferrer(requiredFee[i]["transferer"]);
         check = 1;
@@ -289,32 +80,26 @@ function HistoryPage() {
     }
 
     if (!check) {
-      setErrorEditMessage("Nhập sai số phòng.");
-      setErrorEditModalOpen(true);
+      // Nếu cần báo lỗi có thể dùng toast hoặc console.error
+      return;
     } else {
-      setConfirmationEditMessage(`Bạn có chắc chắn chỉnh sửa khoản thu của phòng ${searchEditedRoom}?`)
-      setConfirmEditModalOpen(true);
+      // Nếu cần xác nhận có thể dùng modal khác hoặc bỏ qua
     }
   };
 
   const handleConfirmEditing = async () => {
-    setConfirmEditModalOpen(false); // Close confirmation modal
+    // setConfirmEditModalOpen(false); // Close confirmation modal
 
     try {
-      var money = "", transferrer = "";
-      if (editedMoney == "") money = curEditMoney;
-      else money = editedMoney;
+      var transferrer = "";
 
-      if (editedTransferrer == "") transferrer = curEditTransferrer;
-      else transferrer = editedTransferrer;
-
-      const success = await window.electronAPI.editFee(Number(searchEditedRoom), Number(money), transferrer);
+      const success = await window.electronAPI.editFee(Number(searchValues.searchRoomFee), Number(curEditMoney), transferrer);
 
       if (success) {
-        setSuccessEditModalOpen(true);
+        // setSuccessEditModalOpen(true);
       } else {
-        setErrorEditMessage("Chỉnh sửa khoản thu không thành công.");
-        setErrorEditModalOpen(true);
+        // setErrorEditMessage("Chỉnh sửa khoản thu không thành công.");
+        // setErrorEditModalOpen(true);
       }
     } catch(error) {
       console.log(error);
@@ -458,7 +243,7 @@ function HistoryPage() {
                         filteredRows.map((row, index) => (
                           <tr key={index}>
                             <td>{row.room_number}</td>
-                            <td>{row.money}</td>
+                            <td>{typeof row.money === 'number' ? row.money.toLocaleString('vi-VN') : row.money}</td>
                             <td>{row.fee_name}</td>
                             <td>{row.transferer}</td>
                             <td>{row.fee_type}</td>

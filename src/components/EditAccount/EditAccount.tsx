@@ -1,21 +1,14 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Form,
-  Button,
-  Container,
-  Row,
-  Col,
-  FloatingLabel,
-} from 'react-bootstrap';
-import { useEffect, useState } from 'react';
-import { EditUser } from '../../interface/interface';
+import { Form, Button, Container, FloatingLabel } from 'react-bootstrap';
+import { useEffect, useState, useCallback } from 'react';
 import { FaEyeSlash } from 'react-icons/fa';
+import { EditUser } from '../../interface/interface';
 import AnimatedFrame from '../../../utils/animation_page';
 
-const EditAccount = () => {
+function EditAccount() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const idNumber = id ? parseInt(id) : 0;
+  const idNumber = id ? parseInt(id, 10) : 0;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,7 +20,7 @@ const EditAccount = () => {
   });
 
   const handleToggle = () => {
-    const inputNode = document.getElementById('myPassword') as HTMLElement;
+    const inputNode = document.getElementById('myPassword') as HTMLInputElement;
     if (inputNode.type === 'password') inputNode.type = 'text';
     else inputNode.type = 'password';
   };
@@ -42,6 +35,7 @@ const EditAccount = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       await window.electronAPI.editUserAccount(
         {
@@ -55,10 +49,12 @@ const EditAccount = () => {
       navigate('/manage-account');
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const result = await window.electronAPI.fetchUser(idNumber);
       const data: EditUser = {
@@ -68,13 +64,12 @@ const EditAccount = () => {
       setUser(data);
     } catch (err) {
       console.log(err);
-    } finally {
     }
-  };
+  }, [idNumber]);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   return (
     <AnimatedFrame>
@@ -159,6 +154,6 @@ const EditAccount = () => {
       </Container>
     </AnimatedFrame>
   );
-};
+}
 
 export default EditAccount;

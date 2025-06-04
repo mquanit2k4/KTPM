@@ -77,13 +77,13 @@ function LoginForm({ onAction }: HandleLoginState) {
     <AnimatedFrame>
       <div className="login-container">
         <img
-          src="/assets/icons/logo.png"
+          src="/assets/icons/logo1.png"
           alt="Logo"
           className="welcome-image"
         />
-        <div className="welcome-text">
-          CHÀO MỪNG BẠN ĐẾN VỚI CHUNG CƯ T&T DC COMPLEX
-        </div>
+        {/* <div className="welcome-text">
+          CHÀO MỪNG BẠN ĐẾN VỚI CHUNG CƯ BLUE MOON
+        </div> */}
         <div className="wrapper login">
           <form onSubmit={handleSubmit}>
             <h1>Đăng nhập</h1>

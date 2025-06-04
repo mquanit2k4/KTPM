@@ -37,7 +37,7 @@ const SideBar: React.FC<SideBarProps> = ({ collapsed, setCollapsed }) => {
       <>
         <Flex align="center" justify="center">
           <div className="logo">
-            <img src="/assets/icons/logo.png" alt="Logo" style={{ width: 150, height: 40, objectFit: 'contain' }} />
+            <img src="/assets/icons/logo3.png" alt="Logo" style={{ width: 250, height: 120, marginTop: -20, marginBottom: -30,   objectFit: 'contain' }} />
           </div>
         </Flex>
         <Menu

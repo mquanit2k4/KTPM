@@ -102,7 +102,7 @@ const FeeTable = (props: any) => {
                       <tr key={index}>
                         <td>{index + 1}</td>
                         <td>{data.name}</td>
-                        <td>{typeof data.totalAmount === 'number' ? data.totalAmount.toLocaleString('vi-VN') : data.totalAmount}</td>
+                        <td>{Number(data.totalAmount).toLocaleString('de-DE')}</td>
                         <td>
                           <Button variant="warning" onClick={() => handleEditFormShow(index)}>Sửa</Button>
                           <Button variant="danger" onClick={() => handleDeleteShow(index)}>Xóa</Button>

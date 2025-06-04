@@ -114,7 +114,13 @@ const ReceivableFee = () => {
 
   const searchContributeQuery = async (query: string) => {
     const queryResult = await window.electronAPI.queryContributeFee(query);
-    setContributeFee(queryResult);
+    setContributeFee(
+      queryResult.map((fee: any, idx: number) => ({
+        ...fee,
+        name: fee.name || fee.fee_name || `Khoản đóng góp ${idx + 1}`,
+        totalAmount: fee.total_amount || 0,
+      }))
+    );
   };
 
   const getData = async () => {

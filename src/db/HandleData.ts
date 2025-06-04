@@ -507,16 +507,22 @@ export const queryContributeFee = async (
   query: string,
 ) => {
   try {
+    let sql = `
+      SELECT
+        fc.*,
+        COALESCE(SUM(tf.money), 0) AS total_amount
+      FROM db.fee_contribute fc
+      LEFT JOIN db.transfer_fee tf
+        ON fc.fee_name = tf.fee_name AND tf.fee_type = 'Tự nguyện'
+    `;
+    let params: any[] = [];
     if (query) {
-      const [rows] = await db.query(
-        'SELECT * FROM db.fee_contribute WHERE fee_name LIKE ?',
-        [`%${query}%`],
-      );
-      return rows;
-    } else {
-      const [rows] = await db.query('SELECT * FROM db.fee_contribute');
-      return rows;
+      sql += ' WHERE fc.fee_name LIKE ?';
+      params.push(`%${query}%`);
     }
+    sql += ' GROUP BY fc.fee_id, fc.fee_name, fc.total_money';
+    const [rows] = await db.query(sql, params);
+    return rows;
   } catch (err) {
     console.error('Error fetching ContributeFee data:', err);
     throw err;

@@ -148,28 +148,12 @@ function LoginForm({ onAction }: HandleLoginState) {
               )}
             </Button>
 
-            <div className="remember-forgot" style={{ marginTop: '10px' }}>
-              <button
-                type="button"
-                onClick={() => navigate('/sign-up')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'inherit',
-                  textDecoration: 'underline',
-                  cursor: 'pointer',
-                  fontSize: 'inherit',
-                }}
-              >
-                Chưa có tài khoản? Đăng ký
-              </button>
-            </div>
+            {message && (
+              <Alert key="warning" variant="warning">
+                {message}
+              </Alert>
+            )}
           </form>
-          {message && (
-            <Alert key="warning" variant="warning">
-              {message}
-            </Alert>
-          )}
         </div>
       </div>
     </AnimatedFrame>

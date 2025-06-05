@@ -37,7 +37,7 @@ const Dashboard = () => {
         <Col lg={6} md={12}>
           <StatCard
             title="SỐ CĂN HỘ ĐÃ SỬ DỤNG"
-            value="43/50"
+            value="50/50"
             color="#faad14"
             icon={<HomeOutlined style={{ color: '#fff', fontSize: 28 }} />}
           />
